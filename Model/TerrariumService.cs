@@ -3,22 +3,40 @@ using Godot;
 
 namespace PixelTerrarium.Model
 {
-    public class TerrariumService
+    public class TerrariumService : Godot.Object
     {
-        public Pixel[,] PixelMap;
+        //public Pixel[,] PixelMap;
+        public Chunk[,] ChunkMap;
         public Vector2Int MapSize;
         public Palette Palette;
+        public Vector2 ChunkSize;
+        public Vector2 ChunkMapSize;
 
-        public TerrariumService(Vector2Int mapSize, int paletteSize)
+        public TerrariumService()
         {
-            PixelMap = new Pixel[mapSize.x, mapSize.y];
-            for (int i = 0; i < mapSize.x; i++)
+            
+        }
+        public TerrariumService(Vector2Int mapSize, int paletteSize, Vector2 chunkSize)
+        {
+            // PixelMap = new Pixel[mapSize.x, mapSize.y];
+            // for (int i = 0; i < mapSize.x; i++)
+            // {
+            //     for (int j = 0; j < mapSize.y; j++)
+            //     {
+            //         PixelMap[i, j] = new Pixel();
+            //     }
+            // }
+            ChunkMapSize = new Vector2(mapSize.x / chunkSize.x, mapSize.y / chunkSize.y);
+            ChunkMap = new Chunk[(int)(mapSize.x / chunkSize.x), (int)(mapSize.y / chunkSize.y)];
+            for (int i = 0; i < mapSize.x / chunkSize.x; i++)
             {
-                for (int j = 0; j < mapSize.y; j++)
+                for (int j = 0; j < mapSize.y / chunkSize.y; j++)
                 {
-                    PixelMap[i, j] = new Pixel();
+                    ChunkMap[i, j] = new Chunk(chunkSize);
                 }
             }
+
+            ChunkSize = chunkSize;
             MapSize = mapSize;
             Palette = new Palette(paletteSize);
         }
@@ -29,7 +47,12 @@ namespace PixelTerrarium.Model
             {
                 if (x >= MapSize.x || y >= MapSize.y) return;
                 var p = new Pixel(type, paletteRef);
-                PixelMap[x, y] = p;
+                var chunkX = x / (int) ChunkSize.x;
+                var chunkY = y / (int) ChunkSize.y;
+                var pixelX = x % (int) ChunkSize.x;
+                var pixelY = y % (int) ChunkSize.y;
+                ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelY] = p;
+                GD.Print($"CHUNKX: {chunkX}, CHUNKY: {chunkY}, PIXELX: {pixelX}, PIXELY: {pixelY}");
             }
             catch (Exception e)
             {
@@ -40,12 +63,20 @@ namespace PixelTerrarium.Model
 
         public Pixel GetPixel(int x, int y)
         {
-            return PixelMap[x, y];
+            var chunkX = x / (int) ChunkSize.x;
+            var chunkY = y / (int) ChunkSize.y;
+            var pixelX = x % (int) ChunkSize.x;
+            var pixelY = y % (int) ChunkSize.y;
+            return ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelY];
         }
 
         public void ClearPixel(int x, int y)
         {
-            PixelMap[x, y] = new Pixel();
+            var chunkX = x / (int) ChunkSize.x;
+            var chunkY = y / (int) ChunkSize.y;
+            var pixelX = x % (int) ChunkSize.x;
+            var pixelY = y % (int) ChunkSize.y;
+            ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelX] = new Pixel();
         }
         
         public void Clear()
