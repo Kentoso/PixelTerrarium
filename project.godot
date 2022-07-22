@@ -14,6 +14,15 @@ config/name="PixelTerrarium"
 run/main_scene="res://Scenes/Game.tscn"
 config/icon="res://icon.png"
 
+[display]
+
+window/vsync/use_vsync=false
+
+[global]
+
+Physic=false
+Physics=false
+
 [input]
 
 translate_up={
@@ -44,6 +53,7 @@ speed_translation={
 
 [physics]
 
+common/physics_fps=30
 common/enable_pause_aware_picking=true
 
 [rendering]

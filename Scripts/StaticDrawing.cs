@@ -18,21 +18,21 @@ public class StaticDrawing : Node2D
     public override void _Draw()
     {
         if (_terrariumService == null) return;
-
         var windowSize = OS.WindowSize;
         var mapSize = (Vector2) _terrariumService.MapSize;
         var toCenter = (windowSize - mapSize * _tileSize) / 2;
-        for (int i = 0; i < _terrariumService.ChunkMapSize.x; i++)
-        {
-            for (int j = 0; j < _terrariumService.ChunkMapSize.y; j++)
-            {
-                var chunk = _terrariumService.ChunkMap[i, j];
-                DrawRect(new Rect2(i * _terrariumService.ChunkSize.x * _tileSize + toCenter.x, j *
-                        _terrariumService.ChunkSize.y * _tileSize + toCenter.y,
-                        _terrariumService.ChunkSize * _tileSize),
-                    Colors.Yellow, false);
-            }
-        }
+        DrawRect(new Rect2(toCenter, mapSize * _tileSize), Colors.Black, false);
+        // for (int i = 0; i < _terrariumService.ChunkMapSize.x; i++)
+        // {
+        //     for (int j = 0; j < _terrariumService.ChunkMapSize.y; j++)
+        //     {
+        //         var chunk = _terrariumService.ChunkMap[i, j];
+        //         DrawRect(new Rect2(i * _terrariumService.ChunkSize.x * _tileSize + toCenter.x, 
+        //                 j * _terrariumService.ChunkSize.y * _tileSize + toCenter.y,
+        //                 _terrariumService.ChunkSize * _tileSize),
+        //             Colors.Yellow, false);
+        //     }
+        // }
     }
 
     public void _on_Terrarium_DrawStatic(TerrariumService terrariumService, int tileSize)

@@ -6,6 +6,7 @@ namespace PixelTerrarium.Model
     {
         private Color[] _colors;
         private int _size;
+        public int Length;
         public Palette(int size)
         {
             _colors = new Color[size];

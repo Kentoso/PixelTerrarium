@@ -2,18 +2,45 @@
 {
     public class Pixel
     {
-        public int? Type;
         public int? PaletteRef;
-
-        public Pixel(int type, int paletteRef)
+        public Material Mat;
+        public Pixel(Material mat, int paletteRef)
         {
-            Type = type;
+            Mat = mat;
             PaletteRef = paletteRef;
         }
-
+        
         public Pixel()
         {
-            Type = null;
+            Mat = null;
+            PaletteRef = null;
+        }
+
+        public Pixel(Pixel other)
+        {
+            Mat = other.Mat;
+            PaletteRef = other.PaletteRef;
+        }
+
+        public void Set(Material mat)
+        {
+            Mat = mat;
+        }
+        public void Set(Material mat, int pref)
+        {
+            Mat = mat;
+            PaletteRef = pref;
+        }
+        
+        public void CopyPixel(Pixel other)
+        {
+            Mat = other.Mat;
+            PaletteRef = other.PaletteRef;
+        }
+
+        public void Clear()
+        {
+            Mat = null;
             PaletteRef = null;
         }
     }

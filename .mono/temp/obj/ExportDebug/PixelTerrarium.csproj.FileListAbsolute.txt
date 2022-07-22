@@ -1,0 +1,9 @@
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\bin\ExportDebug\PixelTerrarium.dll
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\bin\ExportDebug\PixelTerrarium.pdb
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.csproj.AssemblyReference.cache
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.GeneratedMSBuildEditorConfig.editorconfig
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.AssemblyInfoInputs.cache
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.AssemblyInfo.cs
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.csproj.CoreCompileInputs.cache
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.dll
+C:\etc\Projects\Godot\PixelTerrarium\.mono\temp\obj\ExportDebug\PixelTerrarium.pdb

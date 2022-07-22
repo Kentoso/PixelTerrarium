@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Scenes/Terrarium.cs" type="Script" id=1]
 [ext_resource path="res://Scripts/CameraManager.cs" type="Script" id=2]
 [ext_resource path="res://Scripts/StaticDrawing.cs" type="Script" id=3]
+[ext_resource path="res://Scripts/FPS.cs" type="Script" id=4]
 
 [node name="Game" type="Node2D"]
 
@@ -22,39 +23,14 @@ script = ExtResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Period1" type="HSlider" parent="CanvasLayer/Control"]
-margin_right = 183.0
-margin_bottom = 16.0
-min_value = 0.1
-max_value = 64.0
-value = 0.1
+[node name="FPS" type="Label" parent="CanvasLayer/Control"]
+margin_right = 40.0
+margin_bottom = 14.0
+script = ExtResource( 4 )
 
-[node name="Period2" type="HSlider" parent="CanvasLayer/Control"]
-margin_left = 1.0
-margin_top = 26.0
-margin_right = 184.0
-margin_bottom = 42.0
-min_value = 0.1
-max_value = 64.0
-value = 0.1
-
-[node name="Clear" type="Button" parent="CanvasLayer/Control"]
-margin_left = 6.0
-margin_top = 57.0
-margin_right = 77.0
-margin_bottom = 77.0
-text = "Reset"
-
-[node name="Draw" type="Button" parent="CanvasLayer/Control"]
-margin_left = 99.0
-margin_top = 57.0
-margin_right = 170.0
-margin_bottom = 77.0
-text = "Draw"
+[node name="SimsPerSec" type="Label" parent="CanvasLayer/Control"]
+margin_top = 20.0
+margin_right = 40.0
+margin_bottom = 34.0
 
 [connection signal="DrawStatic" from="Terrarium" to="Terrarium/StaticDrawing" method="_on_Terrarium_DrawStatic"]
-[connection signal="value_changed" from="CanvasLayer/Control/Period1" to="Terrarium" method="_on_Period1_value_changed"]
-[connection signal="value_changed" from="CanvasLayer/Control/Period2" to="Terrarium" method="_on_Period2_value_changed"]
-[connection signal="button_down" from="CanvasLayer/Control/Clear" to="Terrarium" method="_on_Clear_button_down"]
-[connection signal="button_down" from="CanvasLayer/Control/Draw" to="Terrarium" method="_on_Draw_button_down"]
-[connection signal="button_down" from="CanvasLayer/Control/Draw" to="Terrarium" method="_on_Clear_button_down"]
