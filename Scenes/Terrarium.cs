@@ -59,12 +59,12 @@ public class Terrarium : Node2D
             var mapSize = (Vector2) _terrariumService.MapSize;
             var windowSize = OS.WindowSize;
             var toCenter = (windowSize - mapSize * _tileSize) / 2;
-            if (new Rect2(toCenter, mapSize * _tileSize).HasPoint(mousePos))
+            if (new Rect2(toCenter, mapSize * _tileSize).HasPoint(mousePos - _translate))
             {
                 var newMousePos = mousePos - toCenter - _translate - new Vector2(0, _tileSize * mapSize.y);
                 newMousePos *= new Vector2(1, -1);
                 newMousePos /= _tileSize;
-                if (_terrariumService.SimulatedSetPixelSquare((int) newMousePos.x, (int) newMousePos.y, _brushSize, _terrariumService.CurrentMaterial)) Update();
+                if (_terrariumService.SimulatedSetPixelSquare((int) newMousePos.x, (int) newMousePos.y, _brushSize, _terrariumService.CurrentMaterial));
             }
         }
         
@@ -189,6 +189,7 @@ public class Terrarium : Node2D
         var windowSize = OS.WindowSize;
         var mapSize = (Vector2)_terrariumService.MapSize;
         var toCenter = (windowSize - mapSize * _tileSize) / 2;
+        //DrawCircle(GetGlobalMousePosition(), 5f, Colors.Red);
         //DrawRect(new Rect2(toCenter, mapSize * _tileSize), Colors.Red, false);
         // for (int i = 0; i < _terrariumService.ChunkMapSize.x; i++)
         // {

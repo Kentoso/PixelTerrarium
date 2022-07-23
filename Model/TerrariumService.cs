@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Godot;
+using PixelTerrarium.Helpers;
 
 namespace PixelTerrarium.Model
 {
@@ -19,6 +20,7 @@ namespace PixelTerrarium.Model
         public List<Material> RegisteredMaterials;
         public Material CurrentMaterial;
         private Random _random;
+        private HashSet<Vector2> _changedPositions;
 
         public TerrariumService()
         {
@@ -26,6 +28,7 @@ namespace PixelTerrarium.Model
 
         public TerrariumService(Vector2Int mapSize, int paletteSize, Vector2 chunkSize)
         {
+            _changedPositions = new HashSet<Vector2>();
             RegisteredMaterials = new List<Material>();
             _random = new Random();
             _stopwatch = new Stopwatch();
@@ -161,6 +164,7 @@ namespace PixelTerrarium.Model
         public bool Simulate()
         {
             bool wasActive = false;
+            _changedPositions.Clear();
             for (int i = 0; i < ChunkMapSize.x; i++)
             {
                 for (int j = 0; j < ChunkMapSize.y; j++)
@@ -169,13 +173,14 @@ namespace PixelTerrarium.Model
                     if (currChunk.IsActive)
                     {
                         wasActive = true;
-                        currChunk.Simulate(this, _left);
+                        currChunk.Simulate(this, _left, ref _changedPositions);
                     }
 
                     currChunk.AdvanceActivity();
                 }
             }
 
+            _left = !_left;
             return wasActive;
         }
 
