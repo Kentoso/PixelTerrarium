@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using PixelTerrarium.Model;
 using Material = PixelTerrarium.Model.Material;
 
@@ -15,24 +16,29 @@ public class Terrarium : Node2D
     private float _defaultTranslateDelta = 2f;
     private float _translateDelta;
     private const int _tileSize = 10;
-    private int _baseTileSize = 10;
     private uint _frameCounter = 0;
     private Camera2D _camera;
     private float _zoomDelta = 0.25f;
     private int _brushSize = 1;
-    private ImageTexture _renderTexture;
-    private Label _simsPerSec;
-    
+    private ImageTexture _paletteTexture;
+    private ImageTexture _gameTexture;
+    private Image _paletteImage;
+    private Image _gameImage;
+    private bool _debug;
     private bool _stopSimulation = false;
     [Signal]
     public delegate void DrawStatic(TerrariumService terrariumService, int tileSize);
 
     public override void _EnterTree()
     {
-        _renderTexture = new ImageTexture();
+        _paletteTexture = new ImageTexture();
+        _gameTexture = new ImageTexture();
+        _paletteImage = new Image();
+        _gameImage = new Image();
         _translateDelta = _defaultTranslateDelta;
         _translate = new Vector2(0, 0);
         _terrariumService = new TerrariumService(new Vector2Int(250, 250), 129, new Vector2(5, 5));
+        _terrariumService.Palette.AppendColor(Colors.Transparent);
         _terrariumService.RegisterMaterial(new List<Material.MaterialType>() {PixelTerrarium.Model.Material.MaterialType.Dust},
             new List<Color>()
             {
@@ -45,14 +51,18 @@ public class Terrarium : Node2D
     public override void _Ready()
     {
         _camera = GetParent().GetNode<Camera2D>("./Camera");
-        _simsPerSec = GetParent().GetNode<Label>("./CanvasLayer/Control/SimsPerSec");
         GetTree().Root.Connect("size_changed", this, "OnResize");
         EmitSignal(nameof(DrawStatic), _terrariumService, _tileSize);
+
+        Shader shader = ResourceLoader.Load<Shader>("res://map_shader.shader");
+        Material = new ShaderMaterial();
+        (Material as ShaderMaterial).Shader = shader;
+        (Material as ShaderMaterial).SetShaderParam("mapSize", _terrariumService.MapSize.x);
+
     }
 
     public override void _Process(float delta)
     {
-        
         if (Input.IsMouseButtonPressed((int) ButtonList.Left))
         {
             var mousePos = GetGlobalMousePosition();
@@ -72,13 +82,44 @@ public class Terrarium : Node2D
 
     public override void _PhysicsProcess(float delta)
     {
+        if (_frameCounter % 6 == 0) 
+        {
+            var palette = _terrariumService.Palette.AnimateRange(1, 4, true);
+            _terrariumService.Palette = palette;
+
+            var pal = _terrariumService.Palette;
+            List<byte> palBytes = new List<byte>();
+            for (int i = 0; i < pal.Length; i++)
+            {
+                palBytes.AddRange(BitConverter.GetBytes(pal.GetColor(i).ToRgba32()).Reverse());
+            }
+            // byte[] palBytes = new byte[pal.Length * 4];
+            // for (int i = 0; i < pal.Length; i += 4)
+            // {
+            //     var b = BitConverter.GetBytes(pal.GetColor(i).ToRgba32()).Reverse();
+            //     var enumerable = b as byte[] ?? b.ToArray();
+            //     palBytes[i] = enumerable.ElementAt(0);
+            //     palBytes[i + 1] = enumerable.ElementAt(1);
+            //     palBytes[i + 2] = enumerable.ElementAt(2);
+            //     palBytes[i + 3] = enumerable.ElementAt(3);
+            // }
+            _paletteImage.CreateFromData(pal.Length, 1, false, Image.Format.Rgba8, palBytes.ToArray());
+            _paletteTexture.CreateFromImage(_paletteImage, 0);
+            (Material as ShaderMaterial).SetShaderParam("palette", _paletteTexture);
+            if (_debug)
+            {   
+                Update();
+            }
+        }
         if (_frameCounter % 1 == 0)
         {
-
             if (_terrariumService.Simulate())
             {
+                _gameImage.CreateFromData(_terrariumService.MapSize.x, _terrariumService.MapSize.y, 
+                    false, Image.Format.R8, _terrariumService.ByteMap);
+                _gameTexture.CreateFromImage(_gameImage, 0);
+                (Material as ShaderMaterial).SetShaderParam("gameMap", _gameTexture);
                 Update();
-                _simsPerSec.Text = "Without texturemap and multi thread (?):" + Performance.GetMonitor(Performance.Monitor.Render2dDrawCallsInFrame).ToString();
             }
         }
         bool needToUpdate = false;
@@ -86,12 +127,6 @@ public class Terrarium : Node2D
             ? 2 * _defaultTranslateDelta
             : _defaultTranslateDelta;
         
-        // if (_frameCounter % 8 == 0)
-        // {
-        //     var palette = _terrariumService.Palette.AnimateRange(0, 8, true);
-        //     _terrariumService.Palette = palette;
-        //     needToUpdate = true;
-        // }
         _frameCounter++;
 
         
@@ -117,11 +152,6 @@ public class Terrarium : Node2D
         {
             _translate.x -= _translateDelta;
             Position = _translate;
-        }
-
-        if (needToUpdate)
-        {
-            Update();
         }
     }
 
@@ -180,6 +210,11 @@ public class Terrarium : Node2D
                 {
                     _stopSimulation = !_stopSimulation;
                 }
+
+                if (keyEvent.Scancode == (int)KeyList.Backslash)
+                {
+                    _debug = !_debug;
+                }
             }
         }
     }
@@ -214,7 +249,6 @@ public class Terrarium : Node2D
         //         if (p.Type == null) continue;
         //         var xPos = (x) * _tileSize + toCenter.x;
         //         var yPos = windowSize.y - (y  + 1) * _tileSize - toCenter.y;
-        //         //GD.Print($"POS: {xPos}, {yPos}");
         //         if (p.Type != null && p.PaletteRef != null)
         //         {
         //             DrawRect(new Rect2(xPos, yPos, _tileSize, _tileSize), _terrariumService.Palette.GetColor((int)p.PaletteRef));
@@ -222,9 +256,17 @@ public class Terrarium : Node2D
         //     }
         // }
         
-        _renderTexture.CreateFromImage(_terrariumService.RenderImage);
-        _renderTexture.Flags = 1;
-        DrawTextureRect(_renderTexture, new Rect2(toCenter, mapSize * _tileSize), false);
+        // _renderTexture.CreateFromImage(_terrariumService.RenderImage);
+        // _renderTexture.Flags = 1;
+        // DrawTextureRect(_renderTexture, new Rect2(toCenter, mapSize * _tileSize), false);
+        if (_debug)
+        {
+            DrawTextureRect(_paletteTexture, new Rect2(0, 0, _terrariumService.Palette.Length * 100, 100),
+                false);
+            DrawTextureRect(_gameTexture, new Rect2(0, 0, mapSize), false);
+        }
+       
+        DrawRect(new Rect2(toCenter, mapSize * _tileSize), Colors.White, true);
     }
 
     private void OnResize()

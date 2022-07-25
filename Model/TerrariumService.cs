@@ -15,6 +15,7 @@ namespace PixelTerrarium.Model
         public Vector2 ChunkSize;
         public Vector2 ChunkMapSize;
         public Image RenderImage;
+        public byte[] ByteMap;
         private Stopwatch _stopwatch;
         private bool _left = true;
         public List<Material> RegisteredMaterials;
@@ -28,6 +29,7 @@ namespace PixelTerrarium.Model
 
         public TerrariumService(Vector2Int mapSize, int paletteSize, Vector2 chunkSize)
         {
+            ByteMap = new byte[mapSize.x * mapSize.y];
             _changedPositions = new HashSet<Vector2>();
             RegisteredMaterials = new List<Material>();
             _random = new Random();
@@ -45,11 +47,11 @@ namespace PixelTerrarium.Model
             ChunkSize = chunkSize;
             MapSize = mapSize;
             Palette = new Palette(paletteSize);
-            RenderImage = new Image();
-            RenderImage.Create((int) (MapSize.x), (int) (MapSize.y), false, Image.Format.Rgba8);
-            RenderImage.Lock();
-            RenderImage.SetPixel(0, 0, Colors.Transparent);
-            RenderImage.Unlock();
+            // RenderImage = new Image();
+            // RenderImage.Create((int) (MapSize.x), (int) (MapSize.y), false, Image.Format.Rgba8);
+            // RenderImage.Lock();
+            // RenderImage.SetPixel(0, 0, Colors.Transparent);
+            // RenderImage.Unlock();
         }
 
         public void RegisterMaterial(List<Material.MaterialType> types, List<Color> colors)
@@ -134,9 +136,10 @@ namespace PixelTerrarium.Model
             var pixelY = y % (int) ChunkSize.y;
 
             ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelY].Clear();
-            RenderImage.Lock();
-            RenderImage.SetPixel(x, MapSize.y - y - 1, Colors.Transparent);
-            RenderImage.Unlock();
+            // RenderImage.Lock();
+            // RenderImage.SetPixel(x, MapSize.y - y - 1, Colors.Transparent);
+            // RenderImage.Unlock();
+            ByteMap[x + MapSize.y * (MapSize.y - y - 1)] = 0;
         }
 
         public void SetPixel(int x, int y, Material mat, int paletteRef)
@@ -150,9 +153,10 @@ namespace PixelTerrarium.Model
                 var pixelY = y % (int) ChunkSize.y;
                 ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelY].Set(mat, paletteRef);
                 ChunkMap[chunkX, chunkY].IsActive = true;
-                RenderImage.Lock();
-                RenderImage.SetPixel(x, MapSize.y - y - 1, Palette.GetColor(paletteRef));
-                RenderImage.Unlock();
+                // RenderImage.Lock();
+                // RenderImage.SetPixel(x, MapSize.y - y - 1, Palette.GetColor(paletteRef));
+                // RenderImage.Unlock();
+                ByteMap[x + MapSize.y * (MapSize.y - y - 1)] = (byte)paletteRef;
                 //GD.Print($"CHUNKX: {chunkX}, CHUNKY: {chunkY}, PIXELX: {pixelX}, PIXELY: {pixelY}");
             }
             catch (Exception e)

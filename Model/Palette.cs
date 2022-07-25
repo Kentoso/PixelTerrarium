@@ -7,6 +7,7 @@ namespace PixelTerrarium.Model
         private Color[] _colors;
         private int _size;
         public int Length;
+
         public Palette(int size)
         {
             _colors = new Color[size];
@@ -21,8 +22,15 @@ namespace PixelTerrarium.Model
             {
                 _colors[i] = another._colors[i];
             }
+
+            Length = another.Length;
         }
-        
+
+        public void AppendColor(Color color)
+        {
+            _colors[Length] = color;
+            Length++;
+        }
         public void SetColor(int id, Color color)
         {
             if (id >= _size)
@@ -82,7 +90,7 @@ namespace PixelTerrarium.Model
                     newPal.SetColor(i + 1, GetColor(i));
                 }
             }
-            return new Palette(newPal);
+            return newPal;
         }
     }
 }
