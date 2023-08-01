@@ -115,10 +115,23 @@ namespace PixelTerrarium.Model
                     }
                 }
             }
-
             return pixelSet;
         }
 
+        public void ClearPixelSquare(int x, int y, int size)
+        {
+            for (int i = -size / 2; i <= size / 2; i++)
+            {
+                for (int j = -size / 2; j <= size / 2; j++)
+                {
+                    if (x + i < 0 || x + i >= MapSize.x || y + j < 0 || y + j >= MapSize.y) continue;
+                    if (GetPixel(x + i, y + j).Mat != null)
+                    {
+                        ClearPixel(x + i, y + j);
+                    }
+                }
+            }
+        }
         public Pixel GetPixel(int x, int y)
         {
             var chunkX = x / (int) ChunkSize.x;
@@ -136,6 +149,7 @@ namespace PixelTerrarium.Model
             var pixelY = y % (int) ChunkSize.y;
 
             ChunkMap[chunkX, chunkY].Pixels[pixelX, pixelY].Clear();
+            ChunkMap[chunkX, chunkY].IsActive = true;
             // RenderImage.Lock();
             // RenderImage.SetPixel(x, MapSize.y - y - 1, Colors.Transparent);
             // RenderImage.Unlock();

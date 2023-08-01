@@ -77,15 +77,28 @@ public class Terrarium : Node2D
                 if (_terrariumService.SimulatedSetPixelSquare((int) newMousePos.x, (int) newMousePos.y, _brushSize, _terrariumService.CurrentMaterial));
             }
         }
-        
+        else if (Input.IsMouseButtonPressed((int) ButtonList.Right))
+        {
+            var mousePos = GetGlobalMousePosition();
+            var mapSize = (Vector2) _terrariumService.MapSize;
+            var windowSize = OS.WindowSize;
+            var toCenter = (windowSize - mapSize * _tileSize) / 2;
+            if (new Rect2(toCenter, mapSize * _tileSize).HasPoint(mousePos - _translate))
+            {
+                var newMousePos = mousePos - toCenter - _translate - new Vector2(0, _tileSize * mapSize.y);
+                newMousePos *= new Vector2(1, -1);
+                newMousePos /= _tileSize;
+                _terrariumService.ClearPixelSquare((int)newMousePos.x, (int) newMousePos.y, _brushSize);
+            }
+        }
     }
 
     public override void _PhysicsProcess(float delta)
     {
         if (_frameCounter % 6 == 0) 
         {
-            var palette = _terrariumService.Palette.AnimateRange(1, 4, true);
-            _terrariumService.Palette = palette;
+            // var palette = _terrariumService.Palette.AnimateRange(1, 4, true);
+            // _terrariumService.Palette = palette;
 
             var pal = _terrariumService.Palette;
             List<byte> palBytes = new List<byte>();
@@ -93,16 +106,6 @@ public class Terrarium : Node2D
             {
                 palBytes.AddRange(BitConverter.GetBytes(pal.GetColor(i).ToRgba32()).Reverse());
             }
-            // byte[] palBytes = new byte[pal.Length * 4];
-            // for (int i = 0; i < pal.Length; i += 4)
-            // {
-            //     var b = BitConverter.GetBytes(pal.GetColor(i).ToRgba32()).Reverse();
-            //     var enumerable = b as byte[] ?? b.ToArray();
-            //     palBytes[i] = enumerable.ElementAt(0);
-            //     palBytes[i + 1] = enumerable.ElementAt(1);
-            //     palBytes[i + 2] = enumerable.ElementAt(2);
-            //     palBytes[i + 3] = enumerable.ElementAt(3);
-            // }
             _paletteImage.CreateFromData(pal.Length, 1, false, Image.Format.Rgba8, palBytes.ToArray());
             _paletteTexture.CreateFromImage(_paletteImage, 0);
             (Material as ShaderMaterial).SetShaderParam("palette", _paletteTexture);
@@ -113,7 +116,12 @@ public class Terrarium : Node2D
         }
         if (_frameCounter % 1 == 0)
         {
-            if (_terrariumService.Simulate())
+            bool simulated = true;
+            for (int i = 0; i < 2; i++)
+            {
+                simulated = simulated && _terrariumService.Simulate();
+            }
+            if (simulated)
             {
                 _gameImage.CreateFromData(_terrariumService.MapSize.x, _terrariumService.MapSize.y, 
                     false, Image.Format.R8, _terrariumService.ByteMap);
@@ -128,8 +136,6 @@ public class Terrarium : Node2D
             : _defaultTranslateDelta;
         
         _frameCounter++;
-
-        
         
         if (Input.IsActionPressed("translate_up"))
         {

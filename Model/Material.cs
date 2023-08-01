@@ -9,7 +9,8 @@ namespace PixelTerrarium.Model
         {
             Dust,
             Liquid,
-            Solid
+            Solid,
+            Empty
         }
         public List<MaterialType> Types;
         public List<Color> PossibleColors;
