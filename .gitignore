@@ -3,6 +3,7 @@
 .mono
 .import
 Export
+.idea
 
 # User specific
 **/.idea/**/workspace.xml
